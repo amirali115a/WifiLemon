@@ -14,6 +14,7 @@ int packet_rate = 0;
 int attack_counter = 0;       
 unsigned long update_time = 0; 
 unsigned long ch_time = 0;    
+unsigned long log_time = 0;   
 
 void sniffer(uint8_t *buf, uint16_t len) {
   if (!buf || len < 28) return;
@@ -51,7 +52,7 @@ void setup() {
   wifi_set_promiscuous_rx_cb(sniffer);
   wifi_set_channel(channels[0]);
   wifi_promiscuous_enable(true);
-  Serial.println("WifiLemon Started ...");
+
   Serial.println("Started sniffing...");
 }
 
@@ -71,8 +72,11 @@ void loop() {
       attack_counter = 0;
     }
 
-    Serial.print("Packets/s: ");
-    Serial.println(packet_rate);
+    if (attack_counter == 0 && current_time - log_time >= 20000) {
+      log_time = current_time;
+      Serial.print("Packets/s: ");
+      Serial.println(packet_rate);
+    }
 
     packet_rate = 0;
   }
@@ -92,4 +96,5 @@ void loop() {
     digitalWrite(LED_PIN, HIGH);
   }
 }
+
 
